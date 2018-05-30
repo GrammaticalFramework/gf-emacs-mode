@@ -491,7 +491,9 @@ If SYNTAX is nil, return nil."
 (defun gf-load-file ()
   (interactive)
   (start-gf)
-  (comint-send-string gf-process (format "i %s\n" buffer-file-name))
+  (comint-send-string gf-process ; import with retain and parse empty
+                                 ; to trigger linking
+                      (format "i -retain %s\np\"\"\n" buffer-file-name))
   (gf-clear-lang-cache)
   (gf-display-inf-buffer))
 
