@@ -152,7 +152,7 @@
     ))
 
 (defvar gf-module-keywords
-  '("abstract" "concrete" "resource" "instance" "interface"))
+  '("abstract" "concrete" "resource" "instance" "interface" "incomplete"))
 
 (defvar gf-keywords
   (append '("of" "let" "include" "open" "in" "where"
@@ -288,6 +288,20 @@ Anything else means try to guess."
        'gf-beginning-of-section)
   (set (make-local-variable 'end-of-defun-function)
        'gf-end-of-section))
+
+;;; Documentation
+(defun gf--parse-show-source-command-to-ht (ht)
+  (let (curr-mod
+        (mod-kw-re (regexp-opt gf-module-keywords "^\\("))
+        (mod-name (lambda (s) (seq-take-while (lambda (c) (not (char-equal c ?=))) s))))
+    (while (not (eobp))
+      (let ((l (thing-at-point 'line t)))
+        (cond ((string-match mod-kw-re l)
+               (setq curr-mode (funcall mod-name l)))
+              ((string-match oper-lin-type l)
+               (add-to-ht ))
+
+
 
 ;;; Indentation
 (defcustom gf-indent-basic-offset 2
