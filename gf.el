@@ -1,9 +1,9 @@
-;;; gf.el --- Major mode for editing GF code -*-coding: iso-8859-1;-*-
+;;; gf.el --- Major mode for editing GF code -*-coding: utf-8;-*-
 
-;; Copyright (C) 2005, 2006, 2007  Johan Bockgård
+;; Copyright (C) 2005, 2006, 2007  Johan BockgÃ¥rd
 ;; Time-stamp: <2007-06-16 11:57:48 bojohan>
 
-;; Author: Johan Bockgård <bojohan+mail@dd.chalmers.se>
+;; Author: Johan BockgÃ¥rd <bojohan+mail@dd.chalmers.se>
 ;; Keywords: languages
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -123,14 +123,14 @@
       ;; Non-ASCII syntax should be OK, at least in Emacs.
       (mapcar (lambda (x)
 		(modify-syntax-entry x "_" table))
-	      (concat "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"
-		      "×÷"))
+	      (concat "Â¡Â¢Â£Â¤Â¥Â¦Â§Â¨Â©ÂªÂ«Â¬Â­Â®Â¯Â°Â±Â²Â³Â´ÂµÂ¶Â·Â¸Â¹ÂºÂ»Â¼Â½Â¾Â¿"
+		      "Ã—Ã·"))
       (mapcar (lambda (x)
 		(modify-syntax-entry x "w" table))
-	      (concat "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖ"
-		      "ØÙÚÛÜİŞß"
-		      "àáâãäåæçèéêëìíîïğñòóôõö"
-		      "øùúûüışÿ")))
+	      (concat "Ã€ÃÃ‚ÃƒÃ„Ã…Ã†Ã‡ÃˆÃ‰ÃŠÃ‹ÃŒÃÃÃÃÃ‘Ã’Ã“Ã”Ã•Ã–"
+		      "Ã˜Ã™ÃšÃ›ÃœÃÃÃŸ"
+		      "Ã Ã¡Ã¢Ã£Ã¤Ã¥Ã¦Ã§Ã¨Ã©ÃªÃ«Ã¬Ã­Ã®Ã¯Ã°Ã±Ã²Ã³Ã´ÃµÃ¶"
+		      "Ã¸Ã¹ÃºÃ»Ã¼Ã½Ã¾Ã¿")))
     table)
   "Syntax table used in GF mode.")
 
@@ -531,7 +531,7 @@ If SYNTAX is nil, return nil."
 	       "gf" gf-process-buffer-name gf-program-name
 	       nil gf-program-args)
       (setq gf-process (get-buffer-process (current-buffer)))
-      (set-buffer-process-coding-system 'latin-1-unix 'latin-1-unix)
+      (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix)
       (inf-gf-mode))))
 
 ;; (defun gf-norm-func (string)
@@ -879,7 +879,7 @@ If SYNTAX is nil, return nil."
 ;;       -parser  use this parsing strategy
 ;;       -number  return this many results at most
 ;;   examples:
-;;       p -cat=S -mcfg "jag är gammal"   -- parse an S with the MCFG
+;;       p -cat=S -mcfg "jag Ã¤r gammal"   -- parse an S with the MCFG
 ;;       rf examples.txt | p -lines      -- parse each non-empty line of the file
 (defun pcomplete/inf-gf-mode/p ()
   (gf-complete-options
