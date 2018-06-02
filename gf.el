@@ -300,18 +300,25 @@ Anything else means try to guess."
   (interactive)
   (start-gf)
   (let ((identifier (symbol-at-point)) ; is this good enough?
-        (get-doc (lambda (command) (gf-collect-results gf-process command (lambda () (buffer-substring (point) (point-max)))))))
+        (get-doc (lambda (command) (gf-collect-results gf-process command (lambda () (thing-at-point 'line t))))))
     (when (and gf-show-type-annotations
+               identifier ; not whitespace
+               (setq identifier (symbol-name identifier))
                (not (string-match gf-keyword-regexp identifier)))
-      (or (gethash identifier gf--oper-docs) ; oper
+      (or (gethash identifier gf--oper-docs-ht) ; oper
           ;; have to parse the output below:
           (funcall get-doc (format "ai %s" identifier)) ; lin/fun
           "Identifier is not a known oper/lin. (Try reloading the
           module if it should be.)"))))
 
-(defvar gf--oper-docs nil
+(defvar gf--oper-docs-ht nil
   "Hashtable whose keys are oper names and values are oper
   types.")
+
+(defun gf--get-opers-docs ()
+  (let ((oper-ht (gf-collect-results gf-process
+                                     "show_operations" (lambda () (gf--parse-show-opers-command-to-ht)))))
+    (setq gf--oper-docs-ht oper-ht)))
 
 (defun gf--parse-show-opers-command-to-ht ()
   (let (curr-oper
@@ -323,7 +330,7 @@ Anything else means try to guess."
                                 v ht))))
     (while not-over
       (let ((l (thing-at-point 'line t)))
-        (cond ((string-match identifier l)
+        (cond ((string-match re-identifier l)
                (funcall add-to-ht curr-oper)
                (setq curr-oper l))
               ((string-match "^$" l)
@@ -537,6 +544,8 @@ If SYNTAX is nil, return nil."
   (comint-send-string gf-process ; import with retain and parse empty
                                  ; to trigger linking
                       (format "i -retain %s\np\"\"\n" buffer-file-name))
+  (when gf-show-type-annotations
+    (gf--get-opers-docs))
   (gf-clear-lang-cache)
   (gf-display-inf-buffer))
 
