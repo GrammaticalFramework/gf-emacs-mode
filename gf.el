@@ -290,18 +290,47 @@ Anything else means try to guess."
        'gf-end-of-section))
 
 ;;; Documentation
-(defun gf--parse-show-source-command-to-ht (ht)
-  (let (curr-mod
-        (mod-kw-re (regexp-opt gf-module-keywords "^\\("))
-        (mod-name (lambda (s) (seq-take-while (lambda (c) (not (char-equal c ?=))) s))))
-    (while (not (eobp))
+(defcustom gf-show-type-annotations t
+  "GF-mode will show the types of opers and lins if value is t."
+  :type 'bool
+  :group 'gf)
+
+(defun gf-doc-display ()
+  "Display the type declaration of the oper/lin at point."
+  (interactive)
+  (start-gf)
+  (let ((identifier (symbol-at-point)) ; is this good enough?
+        (get-doc (lambda (command) (gf-collect-results gf-process command (lambda () (buffer-substring (point) (point-max)))))))
+    (when (and gf-show-type-annotations
+               (not (string-match gf-keyword-regexp identifier)))
+      (or (gethash identifier gf--oper-docs) ; oper
+          ;; have to parse the output below:
+          (funcall get-doc (format "ai %s" identifier)) ; lin/fun
+          "Identifier is not a known oper/lin. (Try reloading the
+          module if it should be.)"))))
+
+(defvar gf--oper-docs nil
+  "Hashtable whose keys are oper names and values are oper
+  types.")
+
+(defun gf--parse-show-opers-command-to-ht ()
+  (let (curr-oper
+        (ht (make-hash-table :size 250))
+        (not-over t)
+        (re-identifier "^[[:alpha:]][[:alnum:]'_]")
+        (add-to-ht (lambda (v) (puthash
+                                (seq-take-while (lambda (c) (not (char-equal c ? ))) v)
+                                v ht))))
+    (while not-over
       (let ((l (thing-at-point 'line t)))
-        (cond ((string-match mod-kw-re l)
-               (setq curr-mode (funcall mod-name l)))
-              ((string-match oper-lin-type l)
-               (add-to-ht ))
-
-
+        (cond ((string-match identifier l)
+               (funcall add-to-ht curr-oper)
+               (setq curr-oper l))
+              ((string-match "^$" l)
+               (funcall add-to-ht curr-oper)
+               (setq not-over nil))
+              (t
+               (setq curr-oper (concat curr-oper l))))))))
 
 ;;; Indentation
 (defcustom gf-indent-basic-offset 2
