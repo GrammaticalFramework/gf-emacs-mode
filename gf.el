@@ -53,7 +53,7 @@
   "Support for GF (Grammatical Framework)"
   :group 'languages
   ;; :link  '(emacs-commentary-link "gf")
-  :link  '(url-link "http://www.cs.chalmers.se/~aarne/GF/"))
+  :link  '(url-link "http://grammaticalframework.org/"))
 
 (defvar gf-mode-map
   (let ((map (make-sparse-keymap)))
@@ -290,8 +290,9 @@ Anything else means try to guess."
        'gf-beginning-of-section)
   (set (make-local-variable 'end-of-defun-function)
        'gf-end-of-section)
-  (gf--get-opers-docs)
-  (add-hook 'after-save-hook 'gf--get-opers-docs nil t))
+  (when gf-show-type-annotations
+    (gf--get-opers-docs)
+    (add-hook 'after-save-hook 'gf--get-opers-docs nil t)))
 
 ;;; Documentation
 (defcustom gf-show-type-annotations t
@@ -331,12 +332,12 @@ you open or save a GF file."
         (ls (split-string str "\n" t))
         (ht (make-hash-table :size 250 :test #'equal))
         (re-type-decl (format "%s : " gf--identifier-regexp))
-        (add-to-ht (lambda (v) (puthash
+        (add-to-ht (lambda (v ht) (puthash
                                 (seq-take-while (lambda (c) (not (char-equal c ? ))) v)
                                 v ht))))
-    (dolist (l ls (progn (funcall add-to-ht curr-oper) ht))
+    (dolist (l ls (progn (funcall add-to-ht curr-oper ht) ht))
       (cond ((string-match re-type-decl l)
-             (funcall add-to-ht curr-oper)
+             (funcall add-to-ht curr-oper ht)
              (setq curr-oper l))
             (t
              (setq curr-oper (concat curr-oper (string-trim-left l))))))))
@@ -544,8 +545,6 @@ If SYNTAX is nil, return nil."
   (interactive)
   (start-gf)
   (comint-send-string gf-process (format "import %s\n" buffer-file-name))
-  (when gf-show-type-annotations
-    (gf--get-opers-docs))
   (gf-clear-lang-cache)
   (gf-display-inf-buffer))
 
