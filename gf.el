@@ -299,13 +299,12 @@ Anything else means try to guess."
   "Display the type declaration of the oper/lin at point."
   (interactive)
   (start-gf)
-  (let ((identifier (symbol-at-point)) ; is this good enough?
+  (let ((identifier (symbol-at-point))
         (get-doc (lambda (command) (gf-collect-results gf-process command (lambda () (thing-at-point 'line t))))))
     (when (and gf-show-type-annotations
-               identifier ; not whitespace
+               identifier ; whitespace?
                (setq identifier (symbol-name identifier)) ; sym -> str
                (not (string-match gf-keyword-regexp identifier)))
-      (print (hash-table-values 
       (or (gethash identifier gf--oper-docs-ht nil) ; oper
           ;; have to parse the output below:
           (funcall get-doc (format "ai %s" identifier)) ; lin/fun
@@ -317,30 +316,25 @@ Anything else means try to guess."
   types.")
 
 (defun gf--get-opers-docs ()
-  (let ((oper-ht (gf-collect-results gf-process
-                                     "show_operations" #'gf--parse-show-opers-command-to-ht)))
-    (setq gf--oper-docs-ht oper-ht)))
+  (let* ((command (format "echo -e 'i -retain %s\nshow_operations' | gf --run" buffer-file-name))
+         (output-str (shell-command-to-string command))
+         (ht (gf--parse-show-opers-to-ht output-str)))
+    (setq gf--oper-docs-ht ht)))
 
-(defun gf--parse-show-opers-command-to-ht ()
+(defun gf--parse-show-opers-to-ht (str)
   (let (curr-oper
+        (ls (split-string str "\n" t))
         (ht (make-hash-table :size 250 :test #'equal))
-        (not-over t)
         (re-identifier "^[[:alpha:]][[:alnum:]'_]")
         (add-to-ht (lambda (v) (puthash
                                 (seq-take-while (lambda (c) (not (char-equal c ? ))) v)
                                 v ht))))
-    (while not-over
-      (let ((l (thing-at-point 'line t)))
-        (cond ((string-match re-identifier l)
-               (funcall add-to-ht curr-oper)
-               (setq curr-oper l))
-              ((string-match "^$" l)
-               (funcall add-to-ht curr-oper)
-               (setq not-over nil))
-              (t
-               (setq curr-oper (concat curr-oper l))))
-        (forward-line 1)))
-    ht))
+    (dolist (l ls ht)
+      (cond ((string-match re-identifier l)
+             (funcall add-to-ht curr-oper)
+             (setq curr-oper l))
+            (t
+             (setq curr-oper (concat curr-oper l)))))))
 
 ;;; Indentation
 (defcustom gf-indent-basic-offset 2
@@ -544,9 +538,7 @@ If SYNTAX is nil, return nil."
 (defun gf-load-file ()
   (interactive)
   (start-gf)
-  (comint-send-string gf-process ; import with retain and parse empty
-                                 ; to trigger linking
-                      (format "i -retain %s\np\"\"\n" buffer-file-name))
+  (comint-send-string gf-process (format "i %s" buffer-file-name))
   (when gf-show-type-annotations
     (gf--get-opers-docs))
   (gf-clear-lang-cache)
