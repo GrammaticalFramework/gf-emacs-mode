@@ -297,7 +297,7 @@ Anything else means try to guess."
 ;;; Documentation
 (defcustom gf-show-type-annotations t
   "GF-mode will show the types of opers and lins if value is t."
-  :type 'bool
+  :type 'boolean
   :group 'gf)
 
 (defun gf-doc-display ()
