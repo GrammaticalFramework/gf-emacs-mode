@@ -163,7 +163,7 @@
 
 (defvar gf-top-level-keyword-regexp (regexp-opt gf-top-level-keywords 'words))
 (defvar gf-keyword-regexp (regexp-opt gf-keywords 'words))
-(defvar gf--identifier-regexp "^[[:alpha:]][[:alnum:]'_]"
+(defvar gf--identifier-regexp "^[[:alpha:]][[:alnum:]'_]*"
   "Regexp for GF identifiers.")
 
 (defvar gf-font-lock-keywords
@@ -274,9 +274,9 @@ Anything else means try to guess."
 ;;;###autoload
 (define-derived-mode gf-mode fundamental-mode "GF"
   "A major mode for editing GF files."
-  ;; (set (make-local-variable 'imenu-generic-expression)
   ;;      gf-imenu-generic-expression)
   ;; (set (make-local-variable 'outline-regexp) sample-outline-regexp)
+  ;; change it all to setq-local?
   (set (make-local-variable 'comment-start) "-- ")
   (set (make-local-variable 'comment-start-skip) "[-{]-[ \t]*")
   (set (make-local-variable 'font-lock-defaults)
@@ -289,7 +289,9 @@ Anything else means try to guess."
   (set (make-local-variable 'beginning-of-defun-function)
        'gf-beginning-of-section)
   (set (make-local-variable 'end-of-defun-function)
-       'gf-end-of-section))
+       'gf-end-of-section)
+  (gf--get-opers-docs)
+  (add-hook 'after-save-hook 'gf--get-opers-docs nil t))
 
 ;;; Documentation
 (defcustom gf-show-type-annotations t
@@ -301,8 +303,8 @@ Anything else means try to guess."
   "Display the type declaration of the oper/lin at point.
 The function uses the GF shell command show_operations
 internally, so its output should be no different from theirs. The
-command is called once and then cached, so if you make changes to
-the file you should reload the file."
+command is called once and then cached. It is rerun every time
+you open or save a GF file."
   (interactive)
   (unless (hash-table-empty-p gf--oper-docs-ht)
     (let ((identifier (symbol-at-point)))
@@ -312,7 +314,7 @@ the file you should reload the file."
                  (string-match gf--identifier-regexp identifier) ; GF identifier?
                  (not (string-match gf-keyword-regexp identifier))) ; not keyword?
         (or (gethash identifier gf--oper-docs-ht nil)
-            "Identifier is not a known oper/lin. (Try reloading the module if it should be.)")))))
+            "Identifier is not a known oper/lin. (Try saving the module if you made changes. If that doesn't work, check if the module is imported without errors.)")))))
 
 (defvar gf--oper-docs-ht (make-hash-table :size 1)
   "Hashtable whose keys are oper names and values are oper
@@ -328,11 +330,12 @@ the file you should reload the file."
   (let (curr-oper
         (ls (split-string str "\n" t))
         (ht (make-hash-table :size 250 :test #'equal))
+        (re-type-decl (format "%s : " gf--identifier-regexp))
         (add-to-ht (lambda (v) (puthash
                                 (seq-take-while (lambda (c) (not (char-equal c ? ))) v)
                                 v ht))))
-    (dolist (l ls ht)
-      (cond ((string-match gf--identifier-regexp l)
+    (dolist (l ls (progn (funcall add-to-ht curr-oper) ht))
+      (cond ((string-match re-type-decl l)
              (funcall add-to-ht curr-oper)
              (setq curr-oper l))
             (t
