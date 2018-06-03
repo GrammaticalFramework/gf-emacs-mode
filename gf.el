@@ -296,17 +296,21 @@ Anything else means try to guess."
   :group 'gf)
 
 (defun gf-doc-display ()
-  "Display the type declaration of the oper/lin at point."
+  "Display the type declaration of the oper/lin at point.
+The function uses the GF shell commands abstract_info and
+show_operations internally, so its output should be no different
+from theirs."
   (interactive)
-  (start-gf)
   (let ((identifier (symbol-at-point))
         (get-doc (lambda (command) (gf-collect-results gf-process command (lambda () (thing-at-point 'line t))))))
     (when (and gf-show-type-annotations
                identifier ; whitespace?
                (setq identifier (symbol-name identifier)) ; sym -> str
-               (not (string-match gf-keyword-regexp identifier)))
-      (or (gethash identifier gf--oper-docs-ht nil) ; oper
+               (not (string-match gf-keyword-regexp identifier))) ; not keyword
+      (or (gethash identifier gf--oper-docs-ht nil) ; oper?
           ;; have to parse the output below:
+          (unless (process-live-p gf-process)
+            "Load module to lookup type annotation for fun declarations.")
           (funcall get-doc (format "ai %s" identifier)) ; lin/fun
           "Identifier is not a known oper/lin. (Try reloading the
           module if it should be.)"))))
@@ -538,7 +542,7 @@ If SYNTAX is nil, return nil."
 (defun gf-load-file ()
   (interactive)
   (start-gf)
-  (comint-send-string gf-process (format "i %s" buffer-file-name))
+  (comint-send-string gf-process (format "import %s" buffer-file-name))
   (when gf-show-type-annotations
     (gf--get-opers-docs))
   (gf-clear-lang-cache)
