@@ -299,27 +299,20 @@ Anything else means try to guess."
 
 (defun gf-doc-display ()
   "Display the type declaration of the oper/lin at point.
-The function uses the GF shell commands abstract_info and
-show_operations internally, so its output should be no different
-from theirs."
+The function uses the GF shell command show_operations
+internally, so its output should be no different from theirs. The
+command is called once and then cached, so if you make changes to
+the file you should reload the file."
   (interactive)
-  (unless (and (hash-table-empty-p gf--oper-docs-ht)
-               (not (process-live-p gf-process)))
-    (let ((identifier (symbol-at-point))
-          (get-ai (lambda (command) (gf-collect-results gf-process command (lambda () (thing-at-point 'line t)))))
-          (ai-success? (lambda (s) (when (string-match " : " s) s))))
+  (unless (hash-table-empty-p gf--oper-docs-ht)
+    (let ((identifier (symbol-at-point)))
       (when (and gf-show-type-annotations
                  identifier ; whitespace?
                  (setq identifier (symbol-name identifier)) ; sym -> str
-                 (string-match gf--identifier-regexp identifier) ; identifier?
+                 (string-match gf--identifier-regexp identifier) ; GF identifier?
                  (not (string-match gf-keyword-regexp identifier))) ; not keyword?
-        (or (gethash identifier gf--oper-docs-ht nil) ; oper?
-            (unless (process-live-p gf-process)
-              "Load file to display type annotations for lin declarations.")
-            (funcall ai-success?
-                     (funcall get-ai (format "ai %s" identifier))) ; lin/fun
-            "Identifier is not a known oper/lin. (Try reloading
-            the module if it should be.)")))))
+        (or (gethash identifier gf--oper-docs-ht nil)
+            "Identifier is not a known oper/lin. (Try reloading the module if it should be.)")))))
 
 (defvar gf--oper-docs-ht (make-hash-table :size 1)
   "Hashtable whose keys are oper names and values are oper
@@ -343,7 +336,7 @@ from theirs."
              (funcall add-to-ht curr-oper)
              (setq curr-oper l))
             (t
-             (setq curr-oper (concat curr-oper l)))))))
+             (setq curr-oper (concat curr-oper (string-trim-left l))))))))
 
 ;;; Indentation
 (defcustom gf-indent-basic-offset 2
