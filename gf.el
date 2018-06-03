@@ -303,26 +303,27 @@ Anything else means try to guess."
         (get-doc (lambda (command) (gf-collect-results gf-process command (lambda () (thing-at-point 'line t))))))
     (when (and gf-show-type-annotations
                identifier ; not whitespace
-               (setq identifier (symbol-name identifier))
+               (setq identifier (symbol-name identifier)) ; sym -> str
                (not (string-match gf-keyword-regexp identifier)))
-      (or (gethash identifier gf--oper-docs-ht) ; oper
+      (print (hash-table-values 
+      (or (gethash identifier gf--oper-docs-ht nil) ; oper
           ;; have to parse the output below:
           (funcall get-doc (format "ai %s" identifier)) ; lin/fun
           "Identifier is not a known oper/lin. (Try reloading the
           module if it should be.)"))))
 
-(defvar gf--oper-docs-ht nil
+(defvar gf--oper-docs-ht (make-hash-table :size 1)
   "Hashtable whose keys are oper names and values are oper
   types.")
 
 (defun gf--get-opers-docs ()
   (let ((oper-ht (gf-collect-results gf-process
-                                     "show_operations" (lambda () (gf--parse-show-opers-command-to-ht)))))
+                                     "show_operations" #'gf--parse-show-opers-command-to-ht)))
     (setq gf--oper-docs-ht oper-ht)))
 
 (defun gf--parse-show-opers-command-to-ht ()
   (let (curr-oper
-        (ht (make-hash-table :size 250))
+        (ht (make-hash-table :size 250 :test #'equal))
         (not-over t)
         (re-identifier "^[[:alpha:]][[:alnum:]'_]")
         (add-to-ht (lambda (v) (puthash
@@ -337,7 +338,9 @@ Anything else means try to guess."
                (funcall add-to-ht curr-oper)
                (setq not-over nil))
               (t
-               (setq curr-oper (concat curr-oper l))))))))
+               (setq curr-oper (concat curr-oper l))))
+        (forward-line 1)))
+    ht))
 
 ;;; Indentation
 (defcustom gf-indent-basic-offset 2
@@ -712,7 +715,7 @@ If SYNTAX is nil, return nil."
 	     (pcomplete-match "\\`-" 1)))))
 
 (defun gf-collect-results (process command function)
-  (let ((output-buffer " *gf-tmp*")
+  (let ((output-buffer "*gf-tmp*")
 	results)
     (save-excursion
       (set-buffer (get-buffer-create output-buffer))
