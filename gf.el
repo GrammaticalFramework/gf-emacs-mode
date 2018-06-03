@@ -163,6 +163,8 @@
 
 (defvar gf-top-level-keyword-regexp (regexp-opt gf-top-level-keywords 'words))
 (defvar gf-keyword-regexp (regexp-opt gf-keywords 'words))
+(defvar gf--identifier-regexp "^[[:alpha:]][[:alnum:]'_]"
+  "Regexp for GF identifiers.")
 
 (defvar gf-font-lock-keywords
   (let ((sym "\\(\\s_\\|\\\\\\)+")
@@ -301,19 +303,23 @@ The function uses the GF shell commands abstract_info and
 show_operations internally, so its output should be no different
 from theirs."
   (interactive)
-  (let ((identifier (symbol-at-point))
-        (get-doc (lambda (command) (gf-collect-results gf-process command (lambda () (thing-at-point 'line t))))))
-    (when (and gf-show-type-annotations
-               identifier ; whitespace?
-               (setq identifier (symbol-name identifier)) ; sym -> str
-               (not (string-match gf-keyword-regexp identifier))) ; not keyword
-      (or (gethash identifier gf--oper-docs-ht nil) ; oper?
-          ;; have to parse the output below:
-          (unless (process-live-p gf-process)
-            "Load module to lookup type annotation for fun declarations.")
-          (funcall get-doc (format "ai %s" identifier)) ; lin/fun
-          "Identifier is not a known oper/lin. (Try reloading the
-          module if it should be.)"))))
+  (unless (and (hash-table-empty-p gf--oper-docs-ht)
+               (not (process-live-p gf-process)))
+    (let ((identifier (symbol-at-point))
+          (get-ai (lambda (command) (gf-collect-results gf-process command (lambda () (thing-at-point 'line t)))))
+          (ai-success? (lambda (s) (when (string-match " : " s) s))))
+      (when (and gf-show-type-annotations
+                 identifier ; whitespace?
+                 (setq identifier (symbol-name identifier)) ; sym -> str
+                 (string-match gf--identifier-regexp identifier) ; identifier?
+                 (not (string-match gf-keyword-regexp identifier))) ; not keyword?
+        (or (gethash identifier gf--oper-docs-ht nil) ; oper?
+            (unless (process-live-p gf-process)
+              "Load file to display type annotations for lin declarations.")
+            (funcall ai-success?
+                     (funcall get-ai (format "ai %s" identifier))) ; lin/fun
+            "Identifier is not a known oper/lin. (Try reloading
+            the module if it should be.)")))))
 
 (defvar gf--oper-docs-ht (make-hash-table :size 1)
   "Hashtable whose keys are oper names and values are oper
@@ -329,12 +335,11 @@ from theirs."
   (let (curr-oper
         (ls (split-string str "\n" t))
         (ht (make-hash-table :size 250 :test #'equal))
-        (re-identifier "^[[:alpha:]][[:alnum:]'_]")
         (add-to-ht (lambda (v) (puthash
                                 (seq-take-while (lambda (c) (not (char-equal c ? ))) v)
                                 v ht))))
     (dolist (l ls ht)
-      (cond ((string-match re-identifier l)
+      (cond ((string-match gf--identifier-regexp l)
              (funcall add-to-ht curr-oper)
              (setq curr-oper l))
             (t
@@ -542,7 +547,7 @@ If SYNTAX is nil, return nil."
 (defun gf-load-file ()
   (interactive)
   (start-gf)
-  (comint-send-string gf-process (format "import %s" buffer-file-name))
+  (comint-send-string gf-process (format "import %s\n" buffer-file-name))
   (when gf-show-type-annotations
     (gf--get-opers-docs))
   (gf-clear-lang-cache)
