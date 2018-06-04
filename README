@@ -1,0 +1,59 @@
+# -*- mode:org -*-
+#+TITLE: GF emacs mode
+
+A major mode for editing GF code.
+
+* default key bindings
+
+| key binding | description                                         |
+|-------------+-----------------------------------------------------|
+| =C-c C-l=   | load file on GF shell (haskell runtime by default). |
+| =C-c C-b=   | display GF shell buffer                             |
+| =C-c C-s=   | run GF shell                                        |
+
+* features
+
+- syntax highlighting
+- indentation support
+- integrated GF shell
+- display =oper= type declaration in minibuffer
+
+* to-do
+if you'd like to have a feature implemented, you should file at ticket
+at the [[https://github.com/odanoburu/conllu-mode/issues][issue tracker]]. here is our current to-do list:
+
+- adding gf-mode to MELPA
+  - adhere to code standards
+    - use cl-lib
+    - naming prefix
+    - docstrings
+- automatic indentation, like =gofmt=
+- flycheck : needs better error messages from GF compiler
+- ...
+  
+* installation
+** MELPA
+   soon.
+** manual installation
+   clone the repo and put these files where emacs will load them, as
+   in:
+   #+BEGIN_SRC sh
+     $ cd ~/some/path/
+     $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
+   #+END_SRC
+   in your =.emacs=:
+   #+BEGIN_SRC elisp
+     (add-to-list 'load-path "~/some/path/gf-emacs-mode"
+     (autoload 'run-gf "gf" nil t)
+     (autoload 'gf-mode "gf" nil t)
+     (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
+     (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
+     (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
+   #+END_SRC
+
+* contributing
+  contributions are welcome!
+
+* credits
+Johan Bockgård wrote most of the mode back in the 2000s (see first
+commit).
