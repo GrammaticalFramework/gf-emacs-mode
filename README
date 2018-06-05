@@ -20,16 +20,7 @@ A major mode for editing GF code.
 
 * to-do
 if you'd like to have a feature implemented, you should file at ticket
-at the [[https://github.com/odanoburu/conllu-mode/issues][issue tracker]]. here is our current to-do list:
-
-- adding gf-mode to MELPA
-  - adhere to code standards
-    - use cl-lib
-    - naming prefix
-    - docstrings
-- automatic indentation, like =gofmt=
-- flycheck : needs better error messages from GF compiler
-- ...
+at the [[https://github.com/GrammaticalFramework/gf-emacs-mode/issues][issue tracker]]. our current to-do list is there too.
   
 * installation
 ** MELPA
