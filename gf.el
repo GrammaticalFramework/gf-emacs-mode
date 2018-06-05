@@ -152,7 +152,7 @@
 ;; Judgements
 (defvar gf-top-level-keywords
   '("cat" "fun" "lincat" "lintype" "lin" "pattern"
-    "oper" "def" "param" "flags" "lindef" "printname"
+    "oper" "def" "param" "flags" "linref" "lindef" "printname"
     "data" "transfer"))
 
 (defvar gf-module-keywords
@@ -203,7 +203,6 @@
 	  (let (found)
 	    (while
 		(and (setq found (re-search-forward
-				  ;; "\\$.*?\\$\\|\\*.*?\\*\\|\".*?\""
 				  "\\$.*?\\$"
 				  end t))
 		     (not (eq (get-text-property (match-beginning 0) 'face)
@@ -273,8 +272,6 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
 ;;;###autoload
 (define-derived-mode gf-mode fundamental-mode "GF"
   "A major mode for editing GF files."
-  ;;      gf-imenu-generic-expression)
-  ;; (set (make-local-variable 'outline-regexp) sample-outline-regexp)
   ;; change it all to setq-local?
   (set (make-local-variable 'comment-start) "-- ")
   (set (make-local-variable 'comment-start-skip) "[-{]-[ \t]*")
@@ -300,9 +297,9 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
 (defun gf-doc-display ()
   "Display the type declaration of the oper/lin at point.
 The function uses the GF shell command show_operations
-internally, so its output should be no different from theirs.  The
-command is called once and then cached.  It is rerun every time
-you open or save a GF file."
+internally, so its output should be no different from theirs.
+The command is called once and then cached.  It is rerun every
+time you open or save a GF file."
   (interactive)
   (when (ht? gf--oper-docs-ht)
     (let ((identifier (symbol-at-point)))
