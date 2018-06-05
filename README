@@ -26,15 +26,20 @@ at the [[https://github.com/GrammaticalFramework/gf-emacs-mode/issues][issue tra
 ** MELPA
    soon.
 ** manual installation
-first clone the repo and put these files where emacs will load them,
-as in:
+1. install the dependencies:
+: M-x package-install s
+: M-x package-install ht
+
+2. clone the repo and put these files where emacs will load them, as in:
 #+BEGIN_SRC sh
   $ cd ~/some/path/
   $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
 #+END_SRC
-then install the package:
+
+3. install the package:
 : M-x package-install-file
-finally, in your =.emacs=:
+
+4 .finally, in your =.emacs=:
 #+BEGIN_SRC elisp
   (autoload 'run-gf "gf" nil t)
   (autoload 'gf-mode "gf" nil t)
