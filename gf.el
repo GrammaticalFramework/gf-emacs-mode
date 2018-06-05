@@ -712,8 +712,7 @@ Point is after command (if echoed), or at beginning of buffer."
    (lambda ()
      (pcomplete-dirs-or-entries
       (regexp-opt
-       '(".gf" ".gfc" ".gfr" ".gfcm" ".gfe" ".ebnf" ".cf"
-	 ".trc"))))))
+       '(".gf" ".gfc" ".gfr" ".gfcm" ".gfe" ".ebnf" ".cf" ".trc"))))))
 
 (defun pcomplete/inf-gf-mode/e ())
 
@@ -774,16 +773,6 @@ Point is after command (if echoed), or at beginning of buffer."
 (defun pcomplete/inf-gf-mode/vt ()
   (gf-complete-options '("api" "mk" "nofun" "nocat") '("format" "view")))
 
-;; -- subshells
-;; tq, translation_quiz: tq Lang Lang
-;;       Random-generates translation exercises from Lang1 to Lang2,
-;;       keeping score of success.
-;;       To interrupt, type a full stop (.) alone on a line.
-;;       HINT: Set -parser and -lexer locally in each grammar.
-;;   flags:
-;;       -cat
-;;   examples:
-;;       tq -cat=NP TestResourceEng TestResourceSwe  -- quiz for NPs
 (defun pcomplete/inf-gf-mode/tq ()
   (pcomplete-here (gf-complete-lang))
   (pcomplete-here (gf-complete-lang)))
