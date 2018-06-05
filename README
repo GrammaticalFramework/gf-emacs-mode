@@ -21,26 +21,27 @@ A major mode for editing GF code.
 * to-do
 if you'd like to have a feature implemented, you should file at ticket
 at the [[https://github.com/GrammaticalFramework/gf-emacs-mode/issues][issue tracker]]. our current to-do list is there too.
-  
+
 * installation
 ** MELPA
    soon.
 ** manual installation
-   clone the repo and put these files where emacs will load them, as
-   in:
-   #+BEGIN_SRC sh
-     $ cd ~/some/path/
-     $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
-   #+END_SRC
-   in your =.emacs=:
-   #+BEGIN_SRC elisp
-     (add-to-list 'load-path "~/some/path/gf-emacs-mode"
-     (autoload 'run-gf "gf" nil t)
-     (autoload 'gf-mode "gf" nil t)
-     (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
-     (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
-     (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
-   #+END_SRC
+first clone the repo and put these files where emacs will load them,
+as in:
+#+BEGIN_SRC sh
+  $ cd ~/some/path/
+  $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
+#+END_SRC
+then install the package:
+: M-x package-install-file
+finally, in your =.emacs=:
+#+BEGIN_SRC elisp
+  (autoload 'run-gf "gf" nil t)
+  (autoload 'gf-mode "gf" nil t)
+  (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
+  (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
+  (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
+#+END_SRC
 
 * contributing
   contributions are welcome!
