@@ -6,6 +6,7 @@
 ;; Author: Johan Bockgård <bojohan+mail@dd.chalmers.se>
 ;; URL: https://github.com/GrammaticalFramework/gf-emacs-mode
 ;; Version: 0.1.1
+;; Package-Requires: ((s "1.0") (ht "2.0"))
 ;; Keywords: languages
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -49,13 +50,14 @@
 
 ;;; Code:
 
+(require 'ht)
+(require 's)
 (require 'comint)
 ;;(eval-when-compile (require 'cl))
 
 (defgroup gf nil
   "Support for GF (Grammatical Framework)"
   :group 'languages
-  ;; :link  '(emacs-commentary-link "gf")
   :link  '(url-link "http://grammaticalframework.org/"))
 
 (defvar gf-mode-map
@@ -170,7 +172,7 @@
   (regexp-opt gf-keywords 'words))
 
 (defvar gf--identifier-regexp
-  "^[[:alpha:]][[:alnum:]'_]*"
+  "[[:alpha:]][[:alnum:]'_]*"
   "Regexp for GF identifiers.")
 
 (defvar gf-font-lock-keywords
@@ -279,8 +281,7 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
   (set (make-local-variable 'font-lock-defaults)
        '(gf-font-lock-keywords
 	 nil nil nil nil
-	 (font-lock-syntactic-keywords . gf-font-lock-syntactic-keywords)
-	 ))
+	 (font-lock-syntactic-keywords . gf-font-lock-syntactic-keywords)))
   (set (make-local-variable 'indent-line-function) 'gf-indent-line)
   (set (make-local-variable 'eldoc-documentation-function) 'gf-doc-display)
   (set (make-local-variable 'beginning-of-defun-function)
@@ -292,7 +293,8 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
     (add-hook 'after-save-hook 'gf--get-opers-docs nil t)))
 
 ;;; Documentation
-(defvar gf--oper-docs-ht (make-hash-table :size 1)
+(defvar gf--oper-docs-ht
+  nil
   "Hashtable whose keys are oper names and values are oper types.")
 
 (defun gf-doc-display ()
@@ -302,40 +304,38 @@ internally, so its output should be no different from theirs.  The
 command is called once and then cached.  It is rerun every time
 you open or save a GF file."
   (interactive)
-  (unless (hash-table-empty-p gf--oper-docs-ht)
+  (when (ht? gf--oper-docs-ht)
     (let ((identifier (symbol-at-point)))
       (when (and gf-show-type-annotations
                  identifier ; whitespace?
                  (setq identifier (symbol-name identifier)) ; sym -> str
                  (string-match gf--identifier-regexp identifier) ; GF identifier?
+                 (not (gf-in-comment-p)) ; not comment?
                  (not (string-match gf-keyword-regexp identifier))) ; not keyword?
-        (or (gethash identifier gf--oper-docs-ht nil)
-            "Identifier is not a known oper/lin. (Try saving the module if you made changes. If that doesn't work, check if the module is imported without errors.)")))))
+        (s-collapse-whitespace
+         (or (ht-get gf--oper-docs-ht identifier nil)
+            "Identifier is not a known oper/lin. (Try saving the module if you made changes. If that doesn't work, check if the module is imported without errors.)"))))))
 
 (defun gf--get-opers-docs ()
   "Build hashtable with oper names as keys and oper type declarations as values.
 Uses GF show_operations command internally, parses output, and builds hashtable."
   (let* ((command (format "echo -e 'i -retain %s\nshow_operations' | gf --run" buffer-file-name))
          (output-str (shell-command-to-string command))
-         (ht (gf--parse-show-opers-to-ht output-str)))
-    (setq gf--oper-docs-ht ht)))
+         (h (gf--parse-show-opers-to-ht output-str)))
+    (setq gf--oper-docs-ht h)))
 
 (defun gf--parse-show-opers-to-ht (str)
   "Parse show_operations GF shell command to hashtable.
 STR is the output string from the command."
   (let (curr-oper
-        (ls (split-string str "\n" t))
-        (ht (make-hash-table :size 250 :test #'equal))
-        (re-type-decl (format "%s : " gf--identifier-regexp))
-        (add-to-ht (lambda (v ht) (puthash
-                                (seq-take-while (lambda (c) (not (char-equal c ? ))) v)
-                                v ht))))
-    (dolist (l ls (progn (funcall add-to-ht curr-oper ht) ht))
-      (cond ((string-match re-type-decl l)
-             (funcall add-to-ht curr-oper ht)
-             (setq curr-oper l))
-            (t
-             (setq curr-oper (concat curr-oper (string-trim-left l))))))))
+        (ls (s-slice-at (format "^%s : " gf--identifier-regexp) str))
+        (h (ht-create #'equal))
+        (add-to-ht (lambda (h v)
+                     (ht-set! h
+                              (car (s-match gf--identifier-regexp v))
+                              v))))
+    (dolist (l ls h)
+      (funcall add-to-ht h l))))
 
 ;;; Indentation
 (defcustom gf-indent-basic-offset 2
