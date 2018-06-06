@@ -36,16 +36,13 @@ at the [[https://github.com/GrammaticalFramework/gf-emacs-mode/issues][issue tra
   $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
 #+END_SRC
 
-3. install the package:
-: M-x package-install-file
-
-4 .finally, in your =.emacs=:
+3 .finally, in your =.emacs=:
 #+BEGIN_SRC elisp
-  (autoload 'run-gf "gf" nil t)
-  (autoload 'gf-mode "gf" nil t)
+  (add-to-list 'load-path "~/some/path/gf-emacs-mode/")
   (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
   (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
   (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
+  (autoload 'gf-mode "gf")
 #+END_SRC
 
 * contributing

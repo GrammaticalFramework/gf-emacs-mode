@@ -5,7 +5,7 @@
 
 ;; Author: Johan Bockgård <bojohan+mail@dd.chalmers.se>
 ;; URL: https://github.com/GrammaticalFramework/gf-emacs-mode
-;; Version: 0.1.1
+;; Version: 1.0.0
 ;; Package-Requires: ((s "1.0") (ht "2.0"))
 ;; Keywords: languages
 
@@ -29,17 +29,6 @@
 ;; Major mode for editing GF code, with support for running a GF
 ;; shell.
 
-;;; Usage:
-
-;; To use this library, put it somewhere Emacs can find it (in
-;; `load-path') and add the following lines to your .emacs file.
-
-;; (autoload 'run-gf "gf" nil t)
-;; (autoload 'gf-mode "gf" nil t)
-;; (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
-;; (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
-;; (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
-
 ;;; History:
 
 ;; 2006-10-30:
@@ -53,7 +42,7 @@
 (require 'ht)
 (require 's)
 (require 'comint)
-;;(eval-when-compile (require 'cl))
+(require 'pcomplete)
 
 (defgroup gf nil
   "Support for GF (Grammatical Framework)"
@@ -64,7 +53,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map "\C-c\C-l"  'gf-load-file)
     (define-key map "\C-c\C-b"  'gf-display-inf-buffer)
-    (define-key map "\C-c\C-s"  'run-gf)
+    (define-key map "\C-c\C-s"  'gf-run-inf-shell)
     (define-key map (kbd "DEL") 'backward-delete-char-untabify)
     map)
   "Keymap for `gf-mode'.")
@@ -532,13 +521,13 @@ If SYNTAX is nil, return nil."
 ;;;
 ;; Inferior GF Mode
 (defcustom gf-program-name "gf"
-  "Name of GF shell invoked by `run-gf'."
+  "Name of GF shell invoked by `gf-run-inf-shell'."
   :type 'file
   :group 'gf)
 
 (defcustom gf-program-args
   nil
-  "Arguments passed to GF by `run-gf'."
+  "Arguments passed to GF by `gf-run-inf-shell'."
   :group 'gf)
 
 (defcustom gf-process-buffer-name
@@ -551,7 +540,7 @@ If SYNTAX is nil, return nil."
 (defun gf-load-file ()
   "Load current file in GF shell."
   (interactive)
-  (start-gf)
+  (gf-start)
   (comint-send-string gf--process (format "import %s\n" buffer-file-name))
   (gf--clear-lang-cache)
   (gf-display-inf-buffer))
@@ -568,13 +557,13 @@ If SYNTAX is nil, return nil."
 (define-key inf-gf-mode-map "\t" 'gf-complete)
 
 ;;;###autoload
-(defun run-gf ()
+(defun gf-run-inf-shell ()
   "Run an inferior GF process."
   (interactive)
-  (start-gf)
+  (gf-start)
   (pop-to-buffer gf-process-buffer-name))
 
-(defun start-gf ()
+(defun gf-start ()
   "Start GF process if not already up."
   (unless (comint-check-proc gf-process-buffer-name)
     (with-current-buffer
@@ -848,5 +837,7 @@ Point is after command (if echoed), or at beginning of buffer."
     ("printer"   . ,gf--flag-printer-options)
     ("transform" . ,gf--flag-transform-options)
     ("unlexer"   . ,gf--flag-unlexer-options)))
+
+(provide 'gf-mode)
 
 ;;; gf.el ends here
