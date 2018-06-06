@@ -325,12 +325,12 @@ STR is the output string from the command."
 
 ;;; Indentation
 (defcustom gf-indent-basic-offset 2
-  "*Number of columns to indent in GF mode."
+  "Number of columns to indent in GF mode."
   :type 'integer
   :group 'gf)
 
 (defcustom gf-indent-judgment-offset 2
-  "*Column where judement should be indented to."
+  "Column where judement should be indented to."
   :type 'integer
   :group 'gf)
 
@@ -635,9 +635,6 @@ If SYNTAX is nil, return nil."
 
 (defun gf--complete-commands () gf--short-command-names)
 
-;; (defun gf--complete-flagify (flags)
-;;   (mapcar (lambda (s) (concat s "=")) flags))
-
 (defvar gf--short-command-names
   '("!" "?" "ai" "aw" "ca" "cc" "dc" "dg" "dt" "e" "eb" "eh" "gr" "gt" "h" "i" "l" "lc" "ma" "mq" "p" "pg" "ph" "ps" "pt" "q" "r" "rf" "rt" "sd" "se" "so" "sp" "ss" "tq" "tt" "ut" "vd" "vp" "vt"))
 
@@ -693,85 +690,153 @@ Point is after command (if echoed), or at beginning of buffer."
 
 ;;
 ;; Command Completion
+
+;; note: pcomplete demands this naming scheme.
+(defun pcomplete/inf-gf-mode/ai ())
+
+(defun pcomplete/inf-gf-mode/aw ()
+  (gf--complete-options
+   '("giza")
+   '("format" "lang" "view")))
+
+(defun pcomplete/inf-gf-mode/ca ()
+  (gf--complete-options
+   '("raw")
+   '("clitics" "lang")))
+
+(defun pcomplete/inf-gf-mode/cc ()
+  (gf--complete-options
+   '("all" "list" "one" "table" "unqual" "trace")
+   '())
+  (throw 'pcompleted nil))
+
+(defun pcomplete/inf-gf-mode/dc ())
+
+(defun pcomplete/inf-gf-mode/dg ()
+  (gf--complete-options '() '("only")))
+
+(defun pcomplete/inf-gf-mode/dt ())
+
+(defun pcomplete/inf-gf-mode/e ())
+
+(defun pcomplete/inf-gf-mode/eb ()
+  (gf--complete-options '("api") '("file" "lang" "probs")))
+
+(defun pcomplete/inf-gf-mode/eh ()
+  (pcomplete-here (pcomplete-entries)))
+
+(defun pcomplete/inf-gf-mode/gr ()
+  (gf--complete-options '() '("cat" "lang" "number" "depth" "probs"))
+  (throw 'pcompleted nil))
+
+(defun pcomplete/inf-gf-mode/gt ()
+  (gf--complete-options '() '("cat" "depth" "lang" "number")))
+
+(defun pcomplete/inf-gf-mode/h ()
+  (gf--complete-options '("changes" "coding" "full" "license" "t2t") '()))
+
 (defun pcomplete/inf-gf-mode/i ()
   (gf--complete-options
    '("v" "src" "retain")
    '("probs")
    nil
-   (lambda ()
-     (pcomplete-dirs-or-entries
-      (regexp-opt
-       '(".gf" ".gfc" ".gfr" ".gfcm" ".gfe" ".ebnf" ".cf" ".trc"))))))
-
-(defun pcomplete/inf-gf-mode/e ())
-
-(defun pcomplete/inf-gf-mode/pg ()
-  (gf--complete-options  '("cats" "fullform" "funs" "langs" "lexc" "missing" "opt" "pgf" "words")
-  			'("file" "lang" "printer")))
-
-(defun pcomplete/inf-gf-mode/eh ()
-  (pcomplete-here (pcomplete-entries)))
-
-(defun pcomplete/inf-gf-mode/ph ())
+   #'pcomplete--entries))
 
 (defun pcomplete/inf-gf-mode/l ()
-  (gf--complete-options '("table" "struct" "all" "multi")
-		       '("lang" "unlexer"))
-  (message "Usage: l [-option*] PattList? Tree")
+  (gf--complete-options
+   '("all" "bracket" "groups" "list" "multi" "table" "tabtreebank" "treebank" "bind" "chars" "from_amharic" "from_ancientgreek" "from_arabic" "from_cp1251" "from_devanagari" "from_greek" "from_hebrew" "from_nepali" "from_persian" "from_sanskrit" "from_sindhi" "from_telugu" "from_thai" "from_urdu" "from_utf8" "lexcode" "lexgreek" "lexgreek2" "lexmixed" "lextext" "to_amharic" "to_ancientgreek" "to_arabic" "to_cp1251" "to_devanagari" "to_greek" "to_hebrew" "to_html" "to_nepali" "to_persian" "to_sanskrit" "to_sindhi" "to_telugu" "to_thai" "to_urdu" "to_utf8" "unchars" "unlexcode" "unlexgreek" "unlexmixed" "unlextext" "unwords" "words" )
+   '("lang" "unlexer"))
   (throw 'pcompleted nil))
+
+(defun pcomplete/inf-gf-mode/lc ()
+  (gf--complete-options '("treebank" "bind" "chars" "from_amharic" "from_ancientgreek" "from_arabic" "from_cp1251" "from_devanagari" "from_greek" "from_hebrew" "from_nepali" "from_persian" "from_sanskrit" "from_sindhi" "from_telugu" "from_thai" "from_urdu" "from_utf8" "lexcode" "lexgreek" "lexgreek2" "lexmixed" "lextext" "to_amharic" "to_ancientgreek" "to_arabic" "to_cp1251" "to_devanagari" "to_greek" "to_hebrew" "to_html" "to_nepali" "to_persian" "to_sanskrit" "to_sindhi" "to_telugu" "to_thai" "to_urdu" "to_utf8" "unchars" "unlexcode" "unlexgreek" "unlexmixed" "unlextext" "unwords" "words") '("lang")))
+
+(defun pcomplete/inf-gf-mode/ma ()
+  (gf--complete-options '("known" "missing") '("lang")))
+
+(defun pcomplete/inf-gf-mode/mq ()
+  (gf--complete-options '() '("lang" "cat" "number" "probs")))
 
 (defun pcomplete/inf-gf-mode/p ()
   (gf--complete-options
    '("bracket")
    '("cat" "lang" "openclass" "depth"))
-  (message "Usage: p [-option*] String")
   (throw 'pcompleted nil))
+
+(defun pcomplete/inf-gf-mode/pg ()
+  (gf--complete-options
+   '("cats" "fullform" "funs" "langs" "lexc" "missing" "opt" "pgf" "words")
+   '("file" "lang" "printer")))
+
+(defun pcomplete/inf-gf-mode/ph ())
+
+(defun pcomplete/inf-gf-mode/ps ()
+  (gf--complete-options
+   '("lines" "bind" "chars" "from_amharic" "from_ancientgreek" "from_arabic" "from_cp1251" "from_devanagari" "from_greek" "from_hebrew" "from_nepali" "from_persian" "from_sanskrit" "from_sindhi" "from_telugu" "from_thai" "from_urdu" "from_utf8" "lexcode" "lexgreek" "lexgreek2" "lexmixed" "lextext" "to_amharic" "to_ancientgreek" "to_arabic" "to_cp1251" "to_devanagari" "to_greek" "to_hebrew" "to_html" "to_nepali" "to_persian" "to_sanskrit" "to_sindhi" "to_telugu" "to_thai" "to_urdu" "to_utf8" "unchars" "unlexcode" "unlexgreek" "unlexmixed" "unlextext" "unwords")
+   '("env" "from" "to")))
+
+(defun pcomplete/inf-gf-mode/pt ()
+  (gf--complete-options
+   '("compute" "largest" "nub" "smallest" "subtrees" "funs") '
+   ("number")))
+
+(defun pcomplete/inf-gf-mode/q ())
+
+(defun pcomplete/inf-gf-mode/r ())
+
+(defun pcomplete/inf-gf-mode/rf ()
+  (gf--complete-options '("lines" "tree") '("file") nil #'pcomplete-entries))
+
+(defun pcomplete/inf-gf-mode/rt ()
+  (gf--complete-options '("v") '("probs") nil))
+
+(defun pcomplete/inf-gf-mode/sd ()
+  (gf--complete-options '("size") '() nil #'pcomplete-entries))
+
+(defun pcomplete/inf-gf-mode/se ())
+
+(defun pcomplete/inf-gf-mode/so ()
+  (gf--complete-options '("raw")
+                        '("grep"))
+  (throw 'pcompleted nil))
+
+(defun pcomplete/inf-gf-mode/sp ()
+  (gf--complete-options '() '("command")))
+
+(defun pcomplete/inf-gf-mode/ss ()
+  (gf--complete-options '("detailedsize" "save" "size" "strip" )
+                        '()
+  (throw 'pcompleted nil)))
+
+(defun pcomplete/inf-gf-mode/tq ()
+  (gf--complete-options '() '("from" "to" "cat" "number" "probs"))
+  (pcomplete-here (gf--complete-lang))
+  (pcomplete-here (gf--complete-lang)))
 
 (defun pcomplete/inf-gf-mode/tt ()
   (gf--complete-options '() '())
   (throw 'pcompleted nil))
 
-(defun pcomplete/inf-gf-mode/cc ()
-  (gf--complete-options '() '("all" "list" "one" "table" "unqual" "trace"))
-  (throw 'pcompleted nil))
+(defun pcomplete/inf-gf-mode/ut ()
+  (gf--complete-options
+   '("amharic" "ancientgreek" "arabic" "devanagari" "greek" "hebrew" "nepali" "persian" "sanskrit" "sindhi" "telugu" "thai")
+   '()))
 
-(defun pcomplete/inf-gf-mode/so ()
-  (gf--complete-options '("raw") '("grep"))
-  (throw 'pcompleted nil))
+(defun pcomplete/inf-gf-mode/vd ()
+  (gf--complete-options '("v" "conll2latex") '("abslabels" "cnclabels" "file" "format" "output" "view" "lang" )))
 
-(defun pcomplete/inf-gf-mode/gr ()
-  (ding)
-  (gf--complete-options nil '("cat" "lang" "number" "depth" "probs"))
-  (message "Usage: gr [-options] Tree?")
-  (throw 'pcompleted nil))
-
-(defun pcomplete/inf-gf-mode/gt ()
-  (gf--complete-options nil
-		       '("depth" "cat" "lang" "number")))
-
-(defun pcomplete/inf-gf-mode/ma ()
-  (gf--complete-options '("known" "missing") '("lang")))
-
-;; -- elementary generation of Strings and Trees
-(defun pcomplete/inf-gf-mode/ps ()
-  (gf--complete-options '("lines" "bind" "chars") '("env" "from" "to")))
-
-(defun pcomplete/inf-gf-mode/pt ()
-  (gf--complete-options '() '("number")))
+(defun pcomplete/inf-gf-mode/vp ()
+  (gf--complete-options
+   '("showcat" "nocat" "showdep" "showfun" "nofun" "showleaves" "noleaves")
+   '("lang" "file" "format" "view" "nodefont" "leaffont" "nodecolor" "leafcolor" "nodeedgestyle" "leafedgestyle")))
 
 (defun pcomplete/inf-gf-mode/vt ()
   (gf--complete-options '("api" "mk" "nofun" "nocat") '("format" "view")))
 
-(defun pcomplete/inf-gf-mode/tq ()
-  (pcomplete-here (gf--complete-lang))
-  (pcomplete-here (gf--complete-lang)))
-
-(defun pcomplete/inf-gf-mode/ml ()
-  (gf--complete-options '() '("cat" "lang" "number" "probs")))
-
-;; -- IO related commands
-(defun pcomplete/inf-gf-mode/rf ()
-  (pcomplete-here (pcomplete-entries)))
+(defun pcomplete/inf-gf-mode/wf ()
+  (gf--complete-options '("append") '("file")
+                        nil
+                        (pcomplete-entries)))
 
 ;; -- Flags. The availability of flags is defined separately for each command.
 (defvar gf--flag-filter-options
@@ -814,12 +879,7 @@ Point is after command (if echoed), or at beginning of buffer."
   '("chart" "bottomup" "topdown" "old"))
 
 (defvar gf--flag-printer-options
-  '("gfc" "gf" "cf" "old" "srg" "gsl" "jsgf" "slf" "slf_graphviz"
-    "fa_graphviz" "regular" "plbnf" "lbnf" "bnf" "haskell" "morpho"
-    "fullform" "opts" "words" "printnames" "stat" "unpar" "subs"
-    "mcfg" "cfg" "pinfo" "abstract" "gfc-haskell" "mcfg-haskell"
-    "cfg-haskell" "gfc-prolog" "mcfg-prolog" "cfg-prolog" "abs-skvatt"
-    "cfg-skvatt" "simple" "mcfg-erasing" "mcfg-old" "cfg-old"))
+  '("bnf" "ebnf" "fa" "gsl" "haskell" "java" "js" "jsgf" "pgf_pretty" "prolog" "python" "regexp" "slf" "srgs_abnf" "srgs_abnf_nonrec" "srgs_xml" "srgs_xml_nonrec" "vxml"))
 
 (defvar gf--flag-transform-options
   '("identity" "compute" "typecheck" "solve" "context" "delete"))
@@ -827,7 +887,7 @@ Point is after command (if echoed), or at beginning of buffer."
 (defvar gf--flag-unlexer-options
   '("unwords" "text" "code" "textlit" "codelit" "concat" "bind"))
 
-;; -- *: Commands and options marked with * are not yet implemented.
+;; [] add file here?
 (defvar gf--flags-table
   `(("filter"    . ,gf--flag-filter-options)
     ("lang"      . ,gf--flag-lang-options)
