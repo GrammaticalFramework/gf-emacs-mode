@@ -4,6 +4,7 @@
 ;; Time-stamp: <2007-06-16 11:57:48 bojohan>
 
 ;; Author: Johan Bockgård <bojohan+mail@dd.chalmers.se>
+;; Maintainer: bruno cuconato <bcclaro+emacs@gmail.com>
 ;; URL: https://github.com/GrammaticalFramework/gf-emacs-mode
 ;; Version: 1.0.0
 ;; Package-Requires: ((s "1.0") (ht "2.0"))
@@ -228,7 +229,7 @@ Anything else means try to guess."
 ;;       in b;
 ;;     y = d;
 ;;   in h
-(defun gf--match-let/in (let/in end)
+(defun gf--match-let-in (let/in end)
   "Indentation rule for let-in form.
 LET/IN is which keyword to search for ('let or 'in), and END is the bound for the search."
   (when gf-let-brace-style
@@ -247,10 +248,10 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
 
 (defvar gf--font-lock-syntactic-keywords
   `(;; let ...
-    (,(lambda (end) (gf--match-let/in 'let end))
+    (,(lambda (end) (gf--match-let-in 'let end))
      1 "(")
     ;; ... in
-    (,(lambda (end) (gf--match-let/in 'in end))
+    (,(lambda (end) (gf--match-let-in 'in end))
      1 ")")))
 
 (defcustom gf-show-type-annotations t
@@ -378,7 +379,6 @@ Section ends at top-level declaration (cat, fun, lin, etc) or eof."
   (point))
 
 (defun gf--beginning-of-sequence (&optional keep-going limit)
-  "Move point to beginning of sequence."
   (or limit (let ((com-start (gf--in-comment-p)))
 	      (when com-start
 		(save-excursion
@@ -898,6 +898,6 @@ Point is after command (if echoed), or at beginning of buffer."
     ("transform" . ,gf--flag-transform-options)
     ("unlexer"   . ,gf--flag-unlexer-options)))
 
-(provide 'gf-mode)
+(provide 'gf)
 
 ;;; gf.el ends here
