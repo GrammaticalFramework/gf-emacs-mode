@@ -1,6 +1,8 @@
 # -*- mode:org -*-
 #+TITLE: GF emacs mode
 
+[[http://melpa.org/#/gf][file:http://melpa.org/packages/gf-badge.svg]]
+
 A major mode for editing GF code.
 
 * default key bindings
@@ -24,7 +26,10 @@ at the [[https://github.com/GrammaticalFramework/gf-emacs-mode/issues][issue tra
 
 * installation
 ** MELPA
-   soon.
+1. [[http://melpa.org/#/getting-started][set MELPA up]], if you haven't already.
+2. =M-x package-refresh-contents=
+3. =M-x package-install RET gf=
+
 ** manual installation
 1. install the dependencies:
 : M-x package-install s
