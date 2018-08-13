@@ -9,12 +9,12 @@ A major mode for editing GF code.
 
 | key binding | description                                         |
 |-------------+-----------------------------------------------------|
-| =C-c C-l=   | load file on GF shell (haskell runtime by default). |
+| =C-c C-l=   | load file on GF shell (haskell runtime by default)  |
 | =C-c C-b=   | display GF shell buffer                             |
 | =C-c C-s=   | run GF shell                                        |
+| =C-c C-.=   | show oper or lin's type signature, if available     |
 
 * features
-
 - syntax highlighting
 - indentation support
 - integrated GF shell
@@ -46,17 +46,18 @@ in your =.emacs=:
 #+BEGIN_SRC elisp
   ;; if installed manually, uncomment the following line:
   ;(add-to-list 'load-path "~/some/path/gf-emacs-mode/")
+  (autoload 'gf-mode "gf" "Major mode for editing GF files." t)
   (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
   (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
   (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
-  (autoload 'gf-mode "gf")
+
 #+END_SRC
 
 to customize =gf-mode=, load the library and do =M-x customize-group
 RET gf=.
 
 * contributing
-  contributions are welcome!
+contributions are welcome!
 
 * credits
 Johan Bockgård wrote most of the mode back in the 2000s (see first

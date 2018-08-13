@@ -6,7 +6,7 @@
 ;; Author: Johan Bockgård <bojohan+mail@dd.chalmers.se>
 ;; Maintainer: bruno cuconato <bcclaro+emacs@gmail.com>
 ;; URL: https://github.com/GrammaticalFramework/gf-emacs-mode
-;; Version: 1.0.0
+;; Version: 1.1.0
 ;; Package-Requires: ((s "1.0") (ht "2.0"))
 ;; Keywords: languages
 
