@@ -260,7 +260,7 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
   :group 'gf)
 
 ;;;###autoload
-(define-derived-mode gf-mode fundamental-mode "GF"
+(define-derived-mode gf-mode prog-mode "GF"
   "A major mode for editing GF files."
   ;; change it all to setq-local?
   (set (make-local-variable 'comment-start) "-- ")
