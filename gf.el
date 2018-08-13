@@ -540,6 +540,7 @@ If SYNTAX is nil, return nil."
 (defun gf-load-file ()
   "Load current file in GF shell."
   (interactive)
+  (save-buffer)
   (gf-start)
   (comint-send-string gf--process (format "import %s\n" buffer-file-name))
   (gf--clear-lang-cache)
