@@ -52,9 +52,10 @@
 
 (defvar gf-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\C-c\C-l"  'gf-load-file)
-    (define-key map "\C-c\C-b"  'gf-display-inf-buffer)
-    (define-key map "\C-c\C-s"  'gf-run-inf-shell)
+    (define-key map (kbd "C-c C-l")  'gf-load-file)
+    (define-key map (kbd "C-c C-b")  'gf-display-inf-buffer)
+    (define-key map (kbd "C-c C-.") 'gf-doc-display)
+    (define-key map (kbd "C-c C-s")  'gf-run-inf-shell)
     (define-key map (kbd "DEL") 'backward-delete-char-untabify)
     map)
   "Keymap for `gf-mode'.")
@@ -270,7 +271,6 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
 	 nil nil nil nil
 	 (font-lock-syntactic-keywords . gf--font-lock-syntactic-keywords)))
   (set (make-local-variable 'indent-line-function) 'gf-indent-line)
-  (set (make-local-variable 'eldoc-documentation-function) 'gf--doc-display)
   (set (make-local-variable 'beginning-of-defun-function)
        'gf--beginning-of-section)
   (set (make-local-variable 'end-of-defun-function)
@@ -284,7 +284,7 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
   nil
   "Hashtable whose keys are oper names and values are oper types.")
 
-(defun gf--doc-display ()
+(defun gf-doc-display ()
   "Display the type declaration of the oper/lin at point.
 The function uses the GF shell command show_operations
 internally, so its output should be no different from theirs.
@@ -299,9 +299,10 @@ time you open or save a GF file."
                  (string-match gf--identifier-regexp identifier) ; GF identifier?
                  (not (gf--in-comment-p)) ; not comment?
                  (not (string-match gf--keyword-regexp identifier))) ; not keyword?
-        (s-collapse-whitespace
+        (message "%s"
+                 (s-collapse-whitespace
          (or (ht-get gf--oper-docs-ht identifier nil)
-            "Identifier is not a known oper/lin. (Try saving the module if you made changes. If that doesn't work, check if the module is imported without errors.)"))))))
+            "Identifier is not a known oper/lin. (Try saving the module if you made changes. If that doesn't work, check if the module is imported without errors.)")))))))
 
 (defun gf--get-opers-docs ()
   "Build hashtable with oper names as keys and oper type declarations as values.
