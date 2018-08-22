@@ -6,7 +6,7 @@
 ;; Author: Johan Bockgård <bojohan+mail@dd.chalmers.se>
 ;; Maintainer: bruno cuconato <bcclaro+emacs@gmail.com>
 ;; URL: https://github.com/GrammaticalFramework/gf-emacs-mode
-;; Version: 1.1.0
+;; Version: 1.1.1
 ;; Package-Requires: ((s "1.0") (ht "2.0"))
 ;; Keywords: languages
 
@@ -72,8 +72,6 @@
     (modify-syntax-entry ?\)  ")(" table)
     (modify-syntax-entry ?\[  "(]" table)
     (modify-syntax-entry ?\]  ")[" table)
-    ;; (modify-syntax-entry ?\<  "(>" table)
-    ;; (modify-syntax-entry ?\>  ")<" table)
 
     (cond ((featurep 'xemacs)
 	   ;; I don't know whether this is equivalent to the below
@@ -274,10 +272,7 @@ LET/IN is which keyword to search for ('let or 'in), and END is the bound for th
   (set (make-local-variable 'beginning-of-defun-function)
        'gf--beginning-of-section)
   (set (make-local-variable 'end-of-defun-function)
-       'gf--end-of-section)
-  (when gf-show-type-annotations
-    (gf--get-opers-docs)
-    (add-hook 'after-save-hook 'gf--get-opers-docs nil t)))
+       'gf--end-of-section))
 
 ;;; Documentation
 (defvar gf--oper-docs-ht
@@ -291,18 +286,22 @@ internally, so its output should be no different from theirs.
 The command is called once and then cached.  It is rerun every
 time you open or save a GF file."
   (interactive)
-  (when (ht? gf--oper-docs-ht)
-    (let ((identifier (symbol-at-point)))
-      (when (and gf-show-type-annotations
-                 identifier ; whitespace?
-                 (setq identifier (symbol-name identifier)) ; sym -> str
-                 (string-match gf--identifier-regexp identifier) ; GF identifier?
-                 (not (gf--in-comment-p)) ; not comment?
-                 (not (string-match gf--keyword-regexp identifier))) ; not keyword?
-        (message "%s"
-                 (s-collapse-whitespace
-         (or (ht-get gf--oper-docs-ht identifier nil)
-            "Identifier is not a known oper/lin. (Try saving the module if you made changes. If that doesn't work, check if the module is imported without errors.)")))))))
+  (if gf--oper-docs-ht
+      (let ((identifier (symbol-at-point)))
+        (when (and gf-show-type-annotations
+                   identifier ; whitespace?
+                   (setq identifier (symbol-name identifier)) ; sym -> str
+                   (string-match gf--identifier-regexp identifier) ; GF identifier?
+                   (not (gf--in-comment-p)) ; not comment?
+                   (not (string-match gf--keyword-regexp identifier))) ; not keyword?
+          (message "%s"
+                   (s-collapse-whitespace
+                    (or (ht-get gf--oper-docs-ht identifier nil)
+                        "Identifier is not a known oper/lin. (Try saving the module if you made changes. If that doesn't work, check if the module is imported without errors.)")))))
+    (progn (when (and gf-show-type-annotations gf--oper-docs-ht)
+             (add-hook 'after-save-hook 'gf--get-opers-docs nil t))
+           (gf--get-opers-docs)
+           (gf-doc-display))))
 
 (defun gf--get-opers-docs ()
   "Build hashtable with oper names as keys and oper type declarations as values.

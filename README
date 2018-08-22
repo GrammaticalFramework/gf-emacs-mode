@@ -7,12 +7,12 @@ A major mode for editing GF code.
 
 * default key bindings
 
-| key binding | description                                         |
-|-------------+-----------------------------------------------------|
-| =C-c C-l=   | load file on GF shell (haskell runtime by default)  |
-| =C-c C-b=   | display GF shell buffer                             |
-| =C-c C-s=   | run GF shell                                        |
-| =C-c C-.=   | show oper or lin's type signature, if available     |
+| key binding | description                                                                      |
+|-------------+----------------------------------------------------------------------------------|
+| =C-c C-l=   | load file on GF shell (haskell runtime by default)                               |
+| =C-c C-b=   | display GF shell buffer                                                          |
+| =C-c C-s=   | run GF shell                                                                     |
+| =C-c C-.=   | show oper or lin's type signature, if available (only useful for small grammars) |
 
 * features
 - syntax highlighting
