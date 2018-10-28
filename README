@@ -32,23 +32,23 @@ at the [[https://github.com/GrammaticalFramework/gf-emacs-mode/issues][issue tra
 
 ** manual installation
 1. install the dependencies:
-: M-x package-install s
-: M-x package-install ht
+  : M-x package-install s
+  : M-x package-install ht
 
 2. clone the repo and put these files where emacs will load them, as in:
-#+BEGIN_SRC sh
-  $ cd ~/some/path/
-  $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
-#+END_SRC
+  #+BEGIN_SRC sh
+    $ cd ~/some/path/
+    $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
+  #+END_SRC
 
 3. add to your =.emacs= file:
-#+BEGIN_SRC elisp
-  (add-to-list 'load-path "~/some/path/gf-emacs-mode/")
-  (autoload 'gf-mode "gf" "Major mode for editing GF files." t)
-  (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
-  (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
-  (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
-#+END_SRC
+  #+BEGIN_SRC elisp
+    (add-to-list 'load-path "~/some/path/gf-emacs-mode/")
+    (autoload 'gf-mode "gf" "Major mode for editing GF files." t)
+    (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
+    (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
+    (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
+  #+END_SRC
 
 * customization
 to customize =gf-mode=, load the library and do =M-x customize-group
