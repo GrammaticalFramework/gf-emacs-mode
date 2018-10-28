@@ -6,7 +6,7 @@
 ;; Author: Johan Bockgård <bojohan+mail@dd.chalmers.se>
 ;; Maintainer: bruno cuconato <bcclaro+emacs@gmail.com>
 ;; URL: https://github.com/GrammaticalFramework/gf-emacs-mode
-;; Version: 1.1.1
+;; Version: 1.1.2
 ;; Package-Requires: ((s "1.0") (ht "2.0"))
 ;; Keywords: languages
 
@@ -898,6 +898,11 @@ Point is after command (if echoed), or at beginning of buffer."
     ("printer"   . ,gf--flag-printer-options)
     ("transform" . ,gf--flag-transform-options)
     ("unlexer"   . ,gf--flag-unlexer-options)))
+
+;;;###autoload
+(progn (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
+       (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
+       (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode)))
 
 (provide 'gf)
 

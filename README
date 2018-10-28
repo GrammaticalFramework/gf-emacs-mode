@@ -41,18 +41,16 @@ at the [[https://github.com/GrammaticalFramework/gf-emacs-mode/issues][issue tra
   $ git clone https://github.com/GrammaticalFramework/gf-emacs-mode
 #+END_SRC
 
-* Setup and customization
-in your =.emacs=:
+3. add to your =.emacs= file:
 #+BEGIN_SRC elisp
-  ;; if installed manually, uncomment the following line:
-  ;(add-to-list 'load-path "~/some/path/gf-emacs-mode/")
+  (add-to-list 'load-path "~/some/path/gf-emacs-mode/")
   (autoload 'gf-mode "gf" "Major mode for editing GF files." t)
   (add-to-list 'auto-mode-alist '("\\.gf\\(\\|e\\|r\\|cm?\\)\\'" . gf-mode))
   (add-to-list 'auto-mode-alist '("\\.cf\\'" . gf-mode))
   (add-to-list 'auto-mode-alist '("\\.ebnf\\'" . gf-mode))
-
 #+END_SRC
 
+* customization
 to customize =gf-mode=, load the library and do =M-x customize-group
 RET gf=.
 
